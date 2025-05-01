@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RegisterMyCV",
-  description: "Submit your CV easily.",
+  title: "Sign Up",
+  description: "Create your account easily.",
 };
 
 export default function RootLayout({
