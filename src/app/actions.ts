@@ -1,9 +1,13 @@
+
 'use server';
 
 import type { z } from 'zod';
 import { registerSchema } from '@/lib/schema';
 import { db } from '@/lib/firebase/config'; // Import Firestore instance
 import { collection, addDoc } from 'firebase/firestore';
+// IMPORTANT: Import Firebase Auth functions for real user creation
+// import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+// const auth = getAuth(); // Initialize Auth if not done in config
 
 type RegisterInput = z.infer<typeof registerSchema>;
 
@@ -19,35 +23,63 @@ export async function registerUser(data: RegisterInput): Promise<{ success: bool
 
   // --- Database Interaction ---
   try {
-    // Add a new document with a generated id to the 'users' collection
-    // IMPORTANT: In a real app, you would use Firebase Authentication to create a user
-    // and then potentially store additional profile info here, linked by the user's UID.
-    // This example just stores the submitted name and email directly.
+    // --- !!! IMPORTANT SECURITY WARNING !!! ---
+    // In a real application, NEVER store the password directly in Firestore.
+    // Use Firebase Authentication's `createUserWithEmailAndPassword` method.
+    // It handles password hashing and secure storage automatically.
+    // Example (requires Firebase Auth setup):
+    /*
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+
+      // Now store additional profile data in Firestore, linking by user.uid
+      const docRef = await addDoc(collection(db, "users"), {
+        uid: user.uid, // Link to the Auth user
+        name: data.name,
+        email: data.email, // Store email for convenience (optional)
+        role: data.role,  // Store the selected role
+        registeredAt: new Date(),
+      });
+
+      console.log("User created in Auth and profile written to Firestore with ID: ", docRef.id);
+      return { success: true, message: 'Registration successful! User created and data saved.' };
+
+    } catch (authError: any) {
+      console.error("Error creating user with Firebase Auth: ", authError);
+      // Provide specific error messages based on authError.code
+      let errorMessage = 'Could not complete registration.';
+      if (authError.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email address is already registered.';
+      } else if (authError.code === 'auth/weak-password') {
+        errorMessage = 'The password is too weak.';
+      }
+      return { success: false, message: errorMessage };
+    }
+    */
+    // --- End Real Auth Example ---
+
+    // --- Current Simplified Example (Stores role, NOT password) ---
     const docRef = await addDoc(collection(db, "users"), {
       name: data.name,
       email: data.email,
+      role: data.role, // Store the selected role
       registeredAt: new Date(), // Optional: Timestamp of registration
+      // DO NOT STORE data.password here directly!
     });
     console.log("Document written with ID: ", docRef.id);
-    return { success: true, message: 'Registration successful! Your data has been saved.' };
+    return { success: true, message: 'Registration successful! Your data has been saved (excluding password for security demo).' };
+    // --- End Simplified Example ---
+
 
   } catch (error) {
     console.error("Error adding document to Firestore: ", error);
-    // Provide a more user-friendly error message
     let errorMessage = 'Could not complete registration due to a server error.';
     if (error instanceof Error) {
-       // You might want to tailor messages based on specific Firebase error codes
-       // e.g., if (error.code === 'permission-denied') { ... }
        console.error("Firestore Error Details:", error.message);
     }
      return { success: false, message: errorMessage };
   }
-  // --- End Database Interaction ---
-
-  // // Simulate successful registration (old code)
-  // await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
-  // console.log('User registered successfully (simulated).');
-  // return { success: true, message: 'Registration successful! Thank you.' };
 }
 
 // Placeholder sign-in action - needs implementation with Firebase Auth

@@ -22,7 +22,7 @@ export default function SignUpPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Sign up</CardTitle>
           <CardDescription className="text-center">
-            Enter your details below to create an account.
+            Enter your details, choose a password, and select your role to create an account.
           </CardDescription>
         </CardHeader>
         <CardContent>

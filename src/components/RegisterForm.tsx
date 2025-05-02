@@ -1,3 +1,4 @@
+
 "use client";
 
 import type * as z from "zod";
@@ -15,12 +16,23 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Import Select components
 import { useToast } from "@/hooks/use-toast";
 import { registerSchema } from "@/lib/schema";
 import { registerUser } from "@/app/actions";
 import { Loader2 } from "lucide-react";
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
+
+// Define the roles directly in the component for the dropdown
+const userRoles = ["Initiative Originator", "Product owner", "Benefit manager", "Benefit owner", "COE member"] as const;
+
 
 export function RegisterForm() {
   const { toast } = useToast();
@@ -31,12 +43,16 @@ export function RegisterForm() {
     defaultValues: {
       name: "",
       email: "",
+      password: "", // Add default value for password
+      role: undefined, // Add default value for role
     },
   });
 
   async function onSubmit(values: RegisterFormValues) {
     setIsSubmitting(true);
     try {
+      // NOTE: In a real app, handle password securely (e.g., Firebase Auth)
+      // The action currently doesn't store the password, only the role.
       const result = await registerUser(values);
       if (result.success) {
         toast({
@@ -92,8 +108,8 @@ export function RegisterForm() {
             </FormItem>
           )}
         />
-        
-        {/* <FormField
+
+        <FormField
           control={form.control}
           name="password"
           render={({ field }) => (
@@ -105,7 +121,33 @@ export function RegisterForm() {
               <FormMessage />
             </FormItem>
           )}
-        /> */}
+        />
+
+        <FormField
+          control={form.control}
+          name="role"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Role</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {userRoles.map((role) => (
+                    <SelectItem key={role} value={role}>
+                      {role}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
