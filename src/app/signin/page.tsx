@@ -10,18 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-
-// Placeholder form action - replace with actual logic
-async function signInUser(formData: FormData) {
-  'use server';
-  console.log('Sign in attempted with:', Object.fromEntries(formData.entries()));
-  // Add actual sign-in logic here (e.g., API call, validation)
-  // For now, just log and potentially redirect or show a message
-  return { success: true, message: "Sign in functionality not implemented yet." };
-}
+import { signInUser } from "@/app/actions"; // Import the updated action
 
 
 export default function SignInPage() {
+  // Basic client-side validation or state management can be added here if needed
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 relative">
        <Button asChild variant="ghost" className="absolute top-4 left-4 sm:top-8 sm:left-8">
@@ -37,7 +31,7 @@ export default function SignInPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Basic Sign In Form Structure - enhance as needed */}
+          {/* Use the server action directly */}
           <form action={signInUser} className="space-y-6">
              <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -50,6 +44,7 @@ export default function SignInPage() {
             <Button type="submit" className="w-full">
               Sign In
             </Button>
+             {/* Consider adding a section to display form submission status/errors */}
           </form>
            <p className="mt-4 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
