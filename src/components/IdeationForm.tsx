@@ -122,4 +122,3 @@ export function IdeationForm({ formData, onFormChange, disabled = false }: Ideat
     </form>
   );
 }
-```

@@ -26,4 +26,3 @@ export async function saveIdeationForm(data: IdeationFormData): Promise<{ succes
     return { success: false, message: errorMessage };
   }
 }
-```

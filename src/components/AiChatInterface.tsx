@@ -116,4 +116,3 @@ export function AiChatInterface({ chatHistory, onSendMessage, isLoading }: AiCha
     </div>
   );
 }
-```
