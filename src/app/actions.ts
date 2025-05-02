@@ -1,13 +1,13 @@
-
 'use server';
 
 import type { z } from 'zod';
 import { registerSchema } from '@/lib/schema';
 import { db } from '@/lib/firebase/config'; // Import Firestore instance
-import { collection, addDoc } from 'firebase/firestore';
-// IMPORTANT: Import Firebase Auth functions for real user creation
-// import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-// const auth = getAuth(); // Initialize Auth if not done in config
+import { collection, addDoc } from 'firebase/firestore'; // Import Firestore functions
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"; // Import Auth functions
+type SigninInput = { email: string, password: string};
+  
+const auth = getAuth(); // Initialize Firebase Auth
 
 type RegisterInput = z.infer<typeof registerSchema>;
 
@@ -21,73 +21,70 @@ export async function registerUser(data: RegisterInput): Promise<{ success: bool
     return { success: false, message: 'Invalid data received.' };
   }
 
-  // --- Database Interaction ---
-  try {
-    // --- !!! IMPORTANT SECURITY WARNING !!! ---
-    // In a real application, NEVER store the password directly in Firestore.
-    // Use Firebase Authentication's `createUserWithEmailAndPassword` method.
-    // It handles password hashing and secure storage automatically.
-    // Example (requires Firebase Auth setup):
-    /*
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      const user = userCredential.user;
-
-      // Now store additional profile data in Firestore, linking by user.uid
+  try { // Try to create a user using firebase auth
+    const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+    const user = userCredential.user;
+    // Once the user has been created in firebase auth, try to save it in firestore
+    try{
       const docRef = await addDoc(collection(db, "users"), {
         uid: user.uid, // Link to the Auth user
         name: data.name,
         email: data.email, // Store email for convenience (optional)
-        role: data.role,  // Store the selected role
+        role: data.role, // Store the selected role
         registeredAt: new Date(),
       });
 
       console.log("User created in Auth and profile written to Firestore with ID: ", docRef.id);
       return { success: true, message: 'Registration successful! User created and data saved.' };
-
-    } catch (authError: any) {
-      console.error("Error creating user with Firebase Auth: ", authError);
-      // Provide specific error messages based on authError.code
-      let errorMessage = 'Could not complete registration.';
-      if (authError.code === 'auth/email-already-in-use') {
-        errorMessage = 'This email address is already registered.';
-      } else if (authError.code === 'auth/weak-password') {
-        errorMessage = 'The password is too weak.';
-      }
+    }catch(firestoreError){
+       console.error("Error saving data in Firestore: ", firestoreError);
+       let errorMessage = 'Registration partially successful! There was a problem saving your additional information.';
+        if (firestoreError instanceof Error) {
+          console.error("Firestore Error Details:", firestoreError.message);
+        }
       return { success: false, message: errorMessage };
     }
-    */
-    // --- End Real Auth Example ---
 
-    // --- Current Simplified Example (Stores role, NOT password) ---
-    const docRef = await addDoc(collection(db, "users"), {
-      name: data.name,
-      email: data.email,
-      role: data.role, // Store the selected role
-      registeredAt: new Date(), // Optional: Timestamp of registration
-      // DO NOT STORE data.password here directly!
-    });
-    console.log("Document written with ID: ", docRef.id);
-    return { success: true, message: 'Registration successful! Your data has been saved (excluding password for security demo).' };
-    // --- End Simplified Example ---
-
-
-  } catch (error) {
-    console.error("Error adding document to Firestore: ", error);
-    let errorMessage = 'Could not complete registration due to a server error.';
-    if (error instanceof Error) {
-       console.error("Firestore Error Details:", error.message);
+  } catch (authError: any) {
+    console.error("Error creating user with Firebase Auth: ", authError);
+    let errorMessage = 'Could not complete registration.';
+    if (authError.code === 'auth/email-already-in-use') {
+      errorMessage = 'This email address is already registered.';
+    } else if (authError.code === 'auth/weak-password') {
+      errorMessage = 'The password is too weak.';
+    } else if (authError instanceof Error) {
+      console.error("Firebase Auth Error Details:", authError.message);
     }
      return { success: false, message: errorMessage };
   }
+  // --- End Database Interaction ---
+
+  // // Simulate successful registration (old code)
+  // await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
+  // console.log('User registered successfully (simulated).');
+  // return { success: true, message: 'Registration successful! Thank you.' };
 }
 
-// Placeholder sign-in action - needs implementation with Firebase Auth
-export async function signInUser(formData: FormData): Promise<{ success: boolean; message: string }> {
+
+export async function signInUser(data: SigninInput): Promise<{ success: boolean; message: string }> {
   'use server';
-  console.log('Sign in attempted with:', Object.fromEntries(formData.entries()));
-  // TODO: Implement actual sign-in logic using Firebase Authentication
-  // e.g., using signInWithEmailAndPassword(auth, email, password)
-  await new Promise(res => setTimeout(res, 500)); // Simulate delay
-  return { success: false, message: "Sign in functionality not yet connected to database." };
+  console.log('Sign in attempted with:', data);
+  try {
+    await signInWithEmailAndPassword(auth, data.email, data.password);
+    return { success: true, message: "Sign in successful." };
+
+  } catch (authError: any) {
+      console.error("Error signing in user: ", authError);
+      let errorMessage = 'Sign in failed.';
+      if (authError.code === 'auth/invalid-login-credentials') {
+        errorMessage = 'Invalid email or password.';
+      } else if (authError.code === 'auth/user-disabled') {
+        errorMessage = 'This account has been disabled.';
+      } else if (authError.code === 'auth/user-not-found') {
+        errorMessage = 'User not found.';
+      } else if (authError instanceof Error) {
+        console.error("Firebase Auth Error Details:", authError.message);
+      }
+      return { success: false, message: errorMessage };
+  }
 }

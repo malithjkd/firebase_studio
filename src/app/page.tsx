@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Rocket, BrainCircuit, GanttChartSquare } from "lucide-react";
+import { Rocket, BrainCircuit, GanttChartSquare, TestTubeDiagonal } from "lucide-react";
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -15,12 +16,17 @@ export default function LandingPage() {
           Leverage the power of Generative AI to streamline workflows, predict outcomes, and manage your projects more effectively than ever before.
         </p>
 
-        <div className="flex justify-center gap-4 mb-16">
+        <div className="flex flex-wrap justify-center gap-4 mb-16">
           <Button asChild size="lg" className="shadow-md">
             <Link href="/signup">Get Started for Free</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="shadow-md">
             <Link href="/signin">Sign In</Link>
+          </Button>
+           <Button asChild size="lg" variant="secondary" className="shadow-md">
+              <Link href="/ideation-demo" className="flex items-center gap-2">
+                 <TestTubeDiagonal className="h-5 w-5" /> Try Ideation Demo
+              </Link>
           </Button>
         </div>
 
@@ -52,8 +58,8 @@ export default function LandingPage() {
             <Image
                 src="https://picsum.photos/1200/600"
                 alt="Project Management Dashboard Illustration"
-                layout="fill"
-                objectFit="cover"
+                fill={true} // Changed from layout="fill"
+                style={{objectFit: 'cover'}} // Changed from objectFit="cover"
                 data-ai-hint="project management dashboard illustration"
             />
              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
