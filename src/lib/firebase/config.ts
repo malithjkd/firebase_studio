@@ -23,3 +23,16 @@ const db = getFirestore(app);
 const auth = getAuth(app); // Initialize Firebase Auth
 
 export { app, db, auth };
+
+
+
+// const firebaseConfig = {
+//   apiKey: "AIzaSyAPg_FjnHHfpaIYf-85zEWYA9ZrJKWoWmk",
+//   authDomain: "ai-cv-451015.firebaseapp.com",
+//   projectId: "ai-cv-451015",
+//   storageBucket: "ai-cv-451015.firebasestorage.app",
+//   messagingSenderId: "669563354855",
+//   appId: "1:669563354855:web:7928f6aa01d9e9ae41ec42",
+//   measurementId: "G-ZNYM97C2C9"
+// };
+

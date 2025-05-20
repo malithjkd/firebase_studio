@@ -1,13 +1,13 @@
+
 'use server';
 
 import { z } from 'zod'; // Import z as a value here
 import { registerSchema } from '@/lib/schema';
-import { db } from '@/lib/firebase/config'; // Import Firestore instance
+import { db, auth } from '@/lib/firebase/config'; // Import db and the initialized auth instance
 import { collection, addDoc } from 'firebase/firestore'; // Import Firestore functions
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"; // Import Auth functions
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"; // Import Auth functions
+
 type SigninInput = { email: string, password: string};
-  
-const auth = getAuth(); // Initialize Firebase Auth
 
 type RegisterInput = z.infer<typeof registerSchema>;
 
@@ -57,12 +57,6 @@ export async function registerUser(data: RegisterInput): Promise<{ success: bool
     }
      return { success: false, message: errorMessage };
   }
-  // --- End Database Interaction ---
-
-  // // Simulate successful registration (old code)
-  // await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
-  // console.log('User registered successfully (simulated).');
-  // return { success: true, message: 'Registration successful! Thank you.' };
 }
 
 
