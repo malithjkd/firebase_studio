@@ -1,11 +1,11 @@
 // src/ai/ai-instance.ts
 import dotenv from 'dotenv';
-dotenv.config();
+//require('dotenv').config();
 
 
 // STEP 2: Add your console.log statement HERE
 console.log("--- Inside src/ai/ai-instance.ts ---");
-console.log("GOOGLE_GENAI_API_KEY from process.env:", process.env.GOOGLE_GENAI_API_KEY);
+console.log("started");
 console.log("------------------------------------");
 
 

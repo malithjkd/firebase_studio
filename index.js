@@ -1,7 +1,8 @@
+require('dotenv').config();
+
 const { MongoClient } = require("mongodb");
 // Replace the uri string with your connection string
-const uri = "mongodb+srv://malithjayawardhana:jRjXd4olFkpdivBn@cluster0.rh47kdd.mongodb.net/";
-//const uri = env.MONGODB_URL;
+const uri = process.env.MONGODB_URL;
 const client = new MongoClient(uri);
 async function run() {
   try {
@@ -11,6 +12,7 @@ async function run() {
     const query = { title: 'Back to the Future' };
     const movie = await movies.findOne(query);
     console.log(movie);
+    console.log(process.env.GOOGLE_GENAI_API_KEY)
   } finally {
     await client.close();
   }

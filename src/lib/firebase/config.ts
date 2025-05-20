@@ -1,4 +1,6 @@
 // Import the functions you need from the SDKs you need
+import dotenv from 'dotenv';
+
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
