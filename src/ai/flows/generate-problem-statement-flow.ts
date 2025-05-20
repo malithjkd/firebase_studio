@@ -4,28 +4,15 @@
  * @fileOverview Generates a concise problem statement based on conversation history.
  *
  * - generateProblemStatement - Function to extract and summarize the problem.
- * - GenerateProblemStatementInput - Input type.
- * - GenerateProblemStatementOutput - Output type.
  */
 
 import {ai} from '@/ai/ai-instance';
-import {z} from 'genkit';
-import type { Message } from '@/lib/types';
-
-const MessageSchema = z.object({
-    role: z.enum(['user', 'model']),
-    content: z.string(),
-});
-
-const GenerateProblemStatementInputSchema = z.object({
-  chatHistory: z.array(MessageSchema).describe('The full conversation history discussing the project idea.'),
-});
-export type GenerateProblemStatementInput = z.infer<typeof GenerateProblemStatementInputSchema>;
-
-const GenerateProblemStatementOutputSchema = z.object({
-    problemStatement: z.string().describe('A concise summary of the core problem the user wants to solve, based on the conversation.')
-});
-export type GenerateProblemStatementOutput = z.infer<typeof GenerateProblemStatementOutputSchema>;
+import {
+  GenerateProblemStatementInputSchema,
+  type GenerateProblemStatementInput,
+  GenerateProblemStatementOutputSchema,
+  type GenerateProblemStatementOutput
+} from '@/lib/types'; // Import schemas and types
 
 
 export async function generateProblemStatement(input: GenerateProblemStatementInput): Promise<GenerateProblemStatementOutput> {
@@ -59,5 +46,5 @@ const generateProblemStatementFlow = ai.defineFlow(
   }
 );
 
-// Add this flow to dev.ts for it to be discoverable
-import './generate-problem-statement-flow';
+// Self-import can be removed if dev.ts handles it.
+// import './generate-problem-statement-flow';

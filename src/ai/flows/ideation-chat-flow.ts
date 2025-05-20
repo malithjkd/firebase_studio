@@ -4,35 +4,20 @@
  * @fileOverview Handles general chat conversation for project ideation.
  *
  * - ideationChat - A function to get an AI response based on chat history.
- * - IdeationChatInput - The input type for the ideationChat function.
- * - IdeationChatOutput - The return type for the ideationChat function (always string).
  */
 
 import {ai} from '@/ai/ai-instance';
-import {z} from 'genkit';
-import type { Message } from '@/lib/types';
-
-const MessageSchema = z.object({
-    role: z.enum(['user', 'model']),
-    content: z.string(),
-});
-
-const IdeationChatInputSchema = z.object({
-  chatHistory: z.array(MessageSchema).describe('The conversation history so far.'),
-});
-export type IdeationChatInput = z.infer<typeof IdeationChatInputSchema>;
-
-// This is the schema for the EXPORTED function's output. It must be a string.
-export const IdeationChatOutputSchema = z.string().describe('The AI\'s response to the last user message.');
-export type IdeationChatOutput = z.infer<typeof IdeationChatOutputSchema>; // This will be `string`
-
-// Internal schema for the prompt's output, allowing for null if the LLM/safety filters result in no text.
-const InternalPromptOutputSchema = z.string().nullable().describe('The AI\'s raw response from the prompt, which could be null.');
+import {
+  IdeationChatInputSchema,
+  type IdeationChatInput,
+  InternalPromptOutputSchemaForChat,
+  type IdeationChatOutput
+} from '@/lib/types'; // Import schemas and types from centralized location
 
 const prompt = ai.definePrompt({
   name: 'ideationChatPrompt',
   input: { schema: IdeationChatInputSchema },
-  output: { schema: InternalPromptOutputSchema }, // Use the nullable schema for the prompt's direct output
+  output: { schema: InternalPromptOutputSchemaForChat }, // Use the nullable schema for the prompt's direct output
   prompt: `You are a helpful AI assistant designed to discuss project ideas with a user. Your goal is to understand their project, focusing on the problem they want to solve and their proposed solution. Engage in natural conversation, ask clarifying questions, and help them refine their thoughts. Keep responses concise and relevant to project ideation.
 
 Conversation History:
@@ -47,10 +32,10 @@ const ideationChatFlow = ai.defineFlow(
   {
     name: 'ideationChatFlow',
     inputSchema: IdeationChatInputSchema,
-    outputSchema: InternalPromptOutputSchema, // The flow itself will also output string | null based on the prompt
+    outputSchema: InternalPromptOutputSchemaForChat, // The flow itself will also output string | null based on the prompt
   },
   async (input) => {
-    const {output} = await prompt(input); // `output` here is `string | null` as per InternalPromptOutputSchema
+    const {output} = await prompt(input); // `output` here is `string | null` as per InternalPromptOutputSchemaForChat
     return output;
   }
 );
@@ -71,4 +56,4 @@ export async function ideationChat(input: IdeationChatInput): Promise<IdeationCh
 // This ensures the flow is discoverable by Genkit dev tools, typically imported in dev.ts.
 // If dev.ts already imports this file for the ideationChat export, this specific line might be redundant
 // but harmless.
-import './ideation-chat-flow';
+// import './ideation-chat-flow'; // Self-import can be removed if dev.ts handles it.

@@ -4,28 +4,15 @@
  * @fileOverview Generates a concise solution statement based on conversation history.
  *
  * - generateSolutionStatement - Function to extract and summarize the solution.
- * - GenerateSolutionStatementInput - Input type.
- * - GenerateSolutionStatementOutput - Output type.
  */
 
 import {ai} from '@/ai/ai-instance';
-import {z} from 'genkit';
-import type { Message } from '@/lib/types';
-
-const MessageSchema = z.object({
-    role: z.enum(['user', 'model']),
-    content: z.string(),
-});
-
-const GenerateSolutionStatementInputSchema = z.object({
-  chatHistory: z.array(MessageSchema).describe('The full conversation history discussing the project idea, including the problem and potential solutions.'),
-});
-export type GenerateSolutionStatementInput = z.infer<typeof GenerateSolutionStatementInputSchema>;
-
-const GenerateSolutionStatementOutputSchema = z.object({
-    solutionStatement: z.string().describe('A concise summary of the proposed solution to the identified problem, based on the conversation.')
-});
-export type GenerateSolutionStatementOutput = z.infer<typeof GenerateSolutionStatementOutputSchema>;
+import {
+  GenerateSolutionStatementInputSchema,
+  type GenerateSolutionStatementInput,
+  GenerateSolutionStatementOutputSchema,
+  type GenerateSolutionStatementOutput
+} from '@/lib/types'; // Import schemas and types
 
 
 export async function generateSolutionStatement(input: GenerateSolutionStatementInput): Promise<GenerateSolutionStatementOutput> {
@@ -59,6 +46,5 @@ const generateSolutionStatementFlow = ai.defineFlow(
   }
 );
 
-
-// Add this flow to dev.ts for it to be discoverable
-import './generate-solution-statement-flow';
+// Self-import can be removed if dev.ts handles it.
+// import './generate-solution-statement-flow';
